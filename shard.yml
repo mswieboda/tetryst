@@ -2,7 +2,7 @@ name: tetryst
 version: 0.1.0
 
 authors:
-  - Matt Swieboda <matts@topsteptrader.com>
+  - Matt Swieboda
 
 targets:
   tetryst:
@@ -11,3 +11,7 @@ targets:
 crystal: 0.27.2
 
 license: MIT
+
+dependencies:
+  cray:
+    gitlab: zatherz/cray
