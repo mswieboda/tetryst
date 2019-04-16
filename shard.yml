@@ -1,0 +1,13 @@
+name: tetryst
+version: 0.1.0
+
+authors:
+  - Matt Swieboda <matts@topsteptrader.com>
+
+targets:
+  tetryst:
+    main: src/tetryst.cr
+
+crystal: 0.27.2
+
+license: MIT
