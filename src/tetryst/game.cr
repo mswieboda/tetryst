@@ -17,6 +17,10 @@ module Tetryst
       @tetromino.rotate(direction: :counter_clockwise)
       @tetromino.print
 
+      @board = Board.new
+      @board.set_cell(3, 21, Cell.new(Shape::Z))
+      @board.print
+
       @paused = false
     end
 

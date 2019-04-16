@@ -1,5 +1,6 @@
 module Tetryst
   enum Shape
+    Empty
     I
     J
     L
