@@ -12,14 +12,8 @@ module Tetryst
       LibRay.init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Tetryst")
       LibRay.set_target_fps(TARGET_FPS)
 
-      @tetromino = Tetronimo.new(0, 0, Shape::T)
-      @tetromino.print
-      @tetromino.rotate(direction: :counter_clockwise)
-      @tetromino.print
-
       @board = Board.new
       @board.set_cell(3, 21, Cell.new(Shape::Z))
-      @board.print
 
       @paused = false
     end
@@ -42,6 +36,7 @@ module Tetryst
     end
 
     def update
+      @board.update
     end
 
     def draw
