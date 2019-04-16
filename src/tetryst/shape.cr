@@ -9,6 +9,8 @@ module Tetryst
     Z
 
     def matrix
+      # TODO: switch to Int8 or Bool for less used space
+
       case self
       when I
         [
@@ -42,9 +44,9 @@ module Tetryst
         ]
       when T
         [
-          [0, 0, 0],
-          [0, 1, 0],
           [1, 1, 1],
+          [0, 1, 0],
+          [0, 0, 0],
         ]
       when Z
         [
@@ -52,6 +54,8 @@ module Tetryst
           [0, 1, 0],
           [0, 1, 1],
         ]
+      else
+        Array(Array(Int32)).new
       end
     end
 

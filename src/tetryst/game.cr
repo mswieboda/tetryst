@@ -12,11 +12,12 @@ module Tetryst
       LibRay.init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Tetryst")
       LibRay.set_target_fps(TARGET_FPS)
 
-      @paused = false
-    end
+      @tetromino = Tetronimo.new(0, 0, Shape::T)
+      @tetromino.print
+      @tetromino.rotate(direction: :counter_clockwise)
+      @tetromino.print
 
-    def level
-      @level.as(Level)
+      @paused = false
     end
 
     def pause
