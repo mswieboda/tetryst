@@ -76,6 +76,8 @@ module Tetryst
         LibRay::PURPLE
       when Z
         LibRay::RED
+      else
+        LibRay::WHITE
       end
     end
   end

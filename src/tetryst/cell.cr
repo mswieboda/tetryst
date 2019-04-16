@@ -1,6 +1,7 @@
 module Tetryst
   class Cell
     getter shape : Shape
+    delegate empty?, to: shape
     delegate color, to: shape
 
     def initialize
@@ -19,6 +20,8 @@ module Tetryst
     end
 
     def draw(x, y, size)
+      return if empty?
+
       LibRay.draw_rectangle(
         pos_x: x,
         pos_y: y,

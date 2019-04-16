@@ -45,6 +45,8 @@ module Tetryst
     end
 
     def draw
+      @board.draw
+
       LibRay.draw_fps(0, 0) if DRAW_FPS
     end
 
