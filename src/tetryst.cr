@@ -1,6 +1,10 @@
-# TODO: Write documentation for `Tetryst`
-module Tetryst
-  VERSION = "0.1.0"
+require "cray"
+require "./tetryst/*"
 
-  # TODO: Put your code here
+module Tetryst
+  def self.run
+    Game.new.run
+  end
 end
+
+Tetryst.run
