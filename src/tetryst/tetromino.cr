@@ -37,12 +37,12 @@ module Tetryst
       @status = Status::Collided
     end
 
-    def rotate(direction = :clockwise)
+    def rotate(direction)
       @blocks = blocks.map_with_index do |_rows, row|
         if direction == :clockwise
-          blocks.map { |b| b[row] }.reverse
+          blocks.reverse.map { |b| b[row] }
         else
-          blocks.map { |b| b[row] }
+          blocks.map { |b| b.reverse[row] }
         end
       end
 

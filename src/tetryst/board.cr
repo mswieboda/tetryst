@@ -16,6 +16,7 @@ module Tetryst
 
     # in seconds
     DROP_TIME               = 0.25
+    BLOCKED_TIME            =  0.2
     KEY_DOWN_INITIAL_TIME   =  0.2
     KEY_DOWN_TIME           = 0.06
     KEY_DOWN_SOFT_DROP_RATE =    2
@@ -28,6 +29,7 @@ module Tetryst
       @y = Game::SCREEN_HEIGHT - height - BORDER_WIDTH
       @tetromino = new_tetromino
       @drop_timer = Timer.new(@drop_time)
+      @blocked_timer = Timer.new(BLOCKED_TIME)
       @key_down_initial_timer = Timer.new(KEY_DOWN_INITIAL_TIME)
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
       @tetromino_did_move = false
@@ -122,37 +124,85 @@ module Tetryst
       end
 
       # rotate
-      if LibRay.key_pressed?(LibRay::KEY_LEFT_SHIFT) || LibRay.key_pressed?(LibRay::KEY_RIGHT_SHIFT)
-        @tetromino.rotate
+      counter_rotation = :none
+      if LibRay.key_pressed?(LibRay::KEY_LEFT_SHIFT)
+        @tetromino.rotate(:counter_clockwise)
+        counter_rotation = :clockwise
+      elsif LibRay.key_pressed?(LibRay::KEY_RIGHT_SHIFT)
+        @tetromino.rotate(:clockwise)
+        counter_rotation = :counter_clockwise
       end
 
       # drop timer
-      if delta_y == 0 && @drop_timer.done?
+      if delta_y == 0 && (@drop_timer.done? || @blocked_timer.active?)
         delta_y += 1
         @drop_timer.reset
+
+        if counter_rotation != :none
+          delta_y -= 1
+        end
       else
         @drop_timer.increase(frame_time)
       end
 
-      # tetromino movement
+      # adjust rotation
+      if counter_rotation != :none
+        set_tetromino_status(delta_x, delta_y)
+
+        more_delta_y = 0
+
+        # try to adjust
+        if !@tetromino.status.free?
+          more_delta_y = -1
+
+          delta_y += more_delta_y
+        end
+
+        set_tetromino_status(delta_x, delta_y)
+
+        # unadjust
+        if !@tetromino.status.free?
+          delta_y -= more_delta_y
+
+          # unrotate
+          @tetromino.rotate(counter_rotation)
+          counter_rotation = :none
+        end
+      end
+
+      # check tetromino movement
       set_tetromino_status(delta_x, delta_y)
 
       case @tetromino.status
       when .free?
+        if (delta_x != 0 || counter_rotation != :none) && @blocked_timer.active?
+          puts "reset"
+          @blocked_timer.reset
+        end
+
         @tetromino_did_move = true
         @tetromino.grid_x += delta_x
         @tetromino.grid_y += delta_y
       when .blocked?
-        place(@tetromino)
-        tetromino = new_tetromino
+        print "blocked"
+        if @blocked_timer.done?
+          @blocked_timer.reset
+          print "done"
+          place(@tetromino)
+          tetromino = new_tetromino
 
-        @tetromino_did_move = false
+          @tetromino_did_move = false
 
-        if game_over_collision?(tetromino)
-          @game_over = true
+          if game_over_collision?(tetromino)
+            @game_over = true
+          else
+            @tetromino = tetromino
+          end
         else
-          @tetromino = tetromino
+          print "increase timer"
+          @blocked_timer.increase(frame_time)
         end
+        puts
       when .collided?
         # don't do anything
         # maybe an alert color flash, vibration, or sound?
