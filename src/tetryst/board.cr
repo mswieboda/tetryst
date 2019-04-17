@@ -24,7 +24,7 @@ module Tetryst
     BORDER_WIDTH = 10
 
     def initialize(@drop_time = DROP_TIME)
-      @cells = Array.new(GRID_HEIGHT) { |y| Array.new(GRID_WIDTH) { |x| Cell.new } }
+      @cells = Array.new(GRID_HEIGHT) { Array.new(GRID_WIDTH) { Cell.new } }
       @x = BORDER_WIDTH
       @y = Game::SCREEN_HEIGHT - height - BORDER_WIDTH
       @tetromino = new_tetromino
@@ -254,39 +254,13 @@ module Tetryst
         end
       end
 
-      @cells.reverse.each_with_index do |row, row_index|
-        row_index = @cells.size - 1 - row_index
-
-        lines_cleared.each do |line_cleared|
-          if row_index == line_cleared
-            # clear row
-            # row.each do |cell|
-            #   cell.shape = Shape::Empty
-            # end
-            # last_row = row
-
-            # delete row
-            @cells.delete_at(row_index)
-
-            # add empty row to top
-            @cells.unshift(row.map_with_index { |cell, index| Cell.new(shape: Shape::Empty) })
-          elsif row_index < line_cleared
-            # # move row down
-            # last_row = row.dup
-
-            # # clear row
-            # row.each do |cell|
-            #   cell.shape = Shape::Empty
-            # end
-          end
-        end
-
-        if row.all? { |cell| !cell.empty? }
-          lines_cleared << row_index
-        end
+      lines_cleared.each_with_index do |line_cleared, line_cleared_index|
+        @cells.delete_at(line_cleared - line_cleared_index)
       end
 
-      puts "#{lines_cleared.size} cleared" if lines_cleared.any?
+      lines_cleared.each do |_line_cleared|
+        @cells.unshift(Array.new(GRID_WIDTH) { Cell.new(shape: Shape::Empty) })
+      end
     end
 
     def game_over_collision?(tetromino)
