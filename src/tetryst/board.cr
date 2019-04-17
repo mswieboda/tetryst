@@ -14,8 +14,10 @@ module Tetryst
     BLOCK_SIZE = 32
 
     # in seconds
-    DROP_TIME     = 0.25
-    KEY_DOWN_TIME =  0.1
+    DROP_TIME               = 0.25
+    KEY_DOWN_INITIAL_TIME   =  0.2
+    KEY_DOWN_TIME           = 0.06
+    KEY_DOWN_SOFT_DROP_RATE =    2
 
     BORDER_WIDTH = 10
 
@@ -24,8 +26,8 @@ module Tetryst
       @x = BORDER_WIDTH
       @y = Game::SCREEN_HEIGHT - height - BORDER_WIDTH
       @tetromino = Tetromino.new(0, 0, Shape::T)
-      # @tetromino.rotate(direction: :counter_clockwise)
       @drop_timer = Timer.new(@drop_time)
+      @key_down_initial_timer = Timer.new(KEY_DOWN_INITIAL_TIME)
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
     end
 
@@ -69,28 +71,45 @@ module Tetryst
       frame_time = LibRay.get_frame_time
 
       # keys
-      if LibRay.key_down?(LibRay::KEY_LEFT) || LibRay.key_down?(LibRay::KEY_D)
-        @key_down_timer.increase(frame_time)
+      # left
+      if LibRay.key_down?(LibRay::KEY_LEFT) || LibRay.key_down?(LibRay::KEY_A)
+        @key_down_initial_timer.increase(frame_time)
 
-        if @key_down_timer.done?
-          delta_x += 1
+        if @key_down_initial_timer.done?
+          @key_down_timer.increase(frame_time)
 
-          @key_down_timer.reset
-        end
-      end
-
-      if LibRay.key_down?(LibRay::KEY_RIGHT) || LibRay.key_down?(LibRay::KEY_A)
-        @key_down_timer.increase(frame_time)
-
-        if @key_down_timer.done?
+          if @key_down_timer.done?
+            delta_x -= 1
+            @key_down_timer.reset
+          end
+        elsif LibRay.key_pressed?(LibRay::KEY_LEFT) || LibRay.key_pressed?(LibRay::KEY_A)
           delta_x -= 1
-
-          @key_down_timer.reset
         end
+      elsif LibRay.key_released?(LibRay::KEY_LEFT) || LibRay.key_released?(LibRay::KEY_A)
+        @key_down_initial_timer.reset
       end
 
+      # right
+      if LibRay.key_down?(LibRay::KEY_RIGHT) || LibRay.key_down?(LibRay::KEY_D)
+        @key_down_initial_timer.increase(frame_time)
+
+        if @key_down_initial_timer.done?
+          @key_down_timer.increase(frame_time)
+
+          if @key_down_timer.done?
+            delta_x += 1
+            @key_down_timer.reset
+          end
+        elsif LibRay.key_pressed?(LibRay::KEY_RIGHT) || LibRay.key_pressed?(LibRay::KEY_D)
+          delta_x += 1
+        end
+      elsif LibRay.key_released?(LibRay::KEY_RIGHT) || LibRay.key_released?(LibRay::KEY_D)
+        @key_down_initial_timer.reset
+      end
+
+      # down
       if LibRay.key_down?(LibRay::KEY_DOWN) || LibRay.key_down?(LibRay::KEY_S)
-        @key_down_timer.increase(frame_time)
+        @key_down_timer.increase(frame_time * KEY_DOWN_SOFT_DROP_RATE)
 
         if @key_down_timer.done?
           delta_y += 1
@@ -100,7 +119,7 @@ module Tetryst
       end
 
       # drop timer
-      if @drop_timer.done?
+      if delta_y == 0 && @drop_timer.done?
         delta_y += 1
         @drop_timer.reset
       else
