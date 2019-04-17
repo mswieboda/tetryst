@@ -194,10 +194,11 @@ module Tetryst
         @tetromino.grid_y += delta_y
       when .blocked?
         if @blocked_timer.done? || @tetromino_hard_drop
-          puts "blocked"
-          @tetromino_hard_drop = false
           @blocked_timer.reset
+          @tetromino_hard_drop = false
+
           place(@tetromino)
+
           tetromino = new_tetromino
 
           @tetromino_did_move = false
@@ -208,7 +209,6 @@ module Tetryst
             @tetromino = tetromino
           end
         else
-          puts "block timer increase"
           @blocked_timer.increase(frame_time)
         end
       when .collided?
