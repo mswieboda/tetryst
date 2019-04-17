@@ -23,10 +23,10 @@ module Tetryst
 
     BORDER_WIDTH = 10
 
-    def initialize(@drop_time = DROP_TIME)
+    def initialize(@x = 0, @y = 0, @drop_time = DROP_TIME)
       @cells = Array.new(GRID_HEIGHT) { Array.new(GRID_WIDTH) { Cell.new } }
-      @x = BORDER_WIDTH
-      @y = Game::SCREEN_HEIGHT - height - BORDER_WIDTH
+      @x += BORDER_WIDTH
+      @y -= BORDER_WIDTH
       @tetromino = new_tetromino
       @drop_timer = Timer.new(@drop_time)
       @blocked_timer = Timer.new(BLOCKED_TIME)
@@ -34,14 +34,15 @@ module Tetryst
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
       @tetromino_did_move = false
       @tetromino_hard_drop = false
+      @lines_cleared = 0
       @game_over = false
     end
 
-    def width
+    def self.width
       GRID_WIDTH * BLOCK_SIZE
     end
 
-    def height
+    def self.height
       GRID_HEIGHT * BLOCK_SIZE
     end
 
@@ -233,6 +234,8 @@ module Tetryst
       lines_cleared.each do |_line_cleared|
         @cells.unshift(Array.new(GRID_WIDTH) { Cell.new(shape: Shape::Empty) })
       end
+
+      @lines_cleared += lines_cleared.size
     end
 
     def game_over_collision?(tetromino)
@@ -269,13 +272,16 @@ module Tetryst
         size: BLOCK_SIZE
       )
 
+      # info
+      # @lines_cleared
+
       # border
       BORDER_WIDTH.times do |border|
         LibRay.draw_rectangle_lines(
           pos_x: @x - border,
           pos_y: @y - border,
-          width: width + border * 2,
-          height: height + border * 2,
+          width: self.class.width + border * 2,
+          height: self.class.height + border * 2,
           color: LibRay::WHITE
         )
       end

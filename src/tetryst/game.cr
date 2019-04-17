@@ -14,7 +14,7 @@ module Tetryst
       LibRay.init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Tetryst")
       LibRay.set_target_fps(TARGET_FPS)
 
-      @board = Board.new
+      @board = Board.new(x: SCREEN_WIDTH / 2 - Board.width / 2, y: SCREEN_HEIGHT - Board.height)
       @paused = false
     end
 
