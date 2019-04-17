@@ -22,7 +22,7 @@ module Tetryst
     BORDER_WIDTH = 10
 
     def initialize(@drop_time = DROP_TIME)
-      @cells = Array.new(22) { |y| Array.new(10) { |x| Cell.new(grid_x: x, grid_y: y) } }
+      @cells = Array.new(GRID_HEIGHT) { |y| Array.new(GRID_WIDTH) { |x| Cell.new(grid_x: x, grid_y: y) } }
       @x = BORDER_WIDTH
       @y = Game::SCREEN_HEIGHT - height - BORDER_WIDTH
       @tetromino = Tetromino.new(0, 0, Shape::T)
@@ -118,6 +118,11 @@ module Tetryst
         end
       end
 
+      # rotate
+      if LibRay.key_pressed?(LibRay::KEY_LEFT_SHIFT) || LibRay.key_pressed?(LibRay::KEY_RIGHT_SHIFT)
+        @tetromino.rotate
+      end
+
       # drop timer
       if delta_y == 0 && @drop_timer.done?
         delta_y += 1
@@ -189,8 +194,8 @@ module Tetryst
     end
 
     def draw
-      @cells.each do |cell_row|
-        cell_row.each do |cell|
+      @cells.each do |rows|
+        rows.each do |cell|
           cell.draw(
             x: @x,
             y: @y,

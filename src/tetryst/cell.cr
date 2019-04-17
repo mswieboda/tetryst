@@ -1,7 +1,7 @@
 module Tetryst
   class Cell
-    getter grid_x : Int32
-    getter grid_y : Int32
+    property grid_x : Int32
+    property grid_y : Int32
     getter shape : Shape
     delegate empty?, to: shape
     delegate color, to: shape

@@ -9,8 +9,8 @@ module Tetryst
       @blocks = @shape.matrix.map_with_index do |rows, row|
         rows.map_with_index do |value, column|
           Cell.new(
-            grid_x: row,
-            grid_y: column,
+            grid_x: column,
+            grid_y: row,
             shape: value == 0 ? Shape::Empty : shape
           )
         end
@@ -23,6 +23,13 @@ module Tetryst
           blocks.map { |b| b[row] }.reverse
         else
           blocks.map { |b| b[row] }
+        end
+      end
+
+      @blocks.each_with_index do |rows, row|
+        rows.each_with_index do |cell, column|
+          cell.grid_x = column
+          cell.grid_y = row
         end
       end
     end
