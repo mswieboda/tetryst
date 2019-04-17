@@ -93,25 +93,27 @@ module Tetryst
     def update_ghost(grid_cells)
       grid_cells.each_with_index do |grid_row, grid_row_index|
         grid_row.each_with_index do |grid_column, grid_column_index|
-          # next if grid_column_index < grid_x || grid_column_index > grid_x + cells.size
+          next if grid_column_index < grid_x || grid_column_index > grid_x + cells.size
 
           cells.each_with_index do |row, row_index|
             cell_y = grid_row_index + row_index
 
-            if cell_y >= Board::GRID_HEIGHT
-              @ghost_y = cell_y
-              return
-            end
-
             row.each_with_index do |cell, column_index|
-              cell_x = grid_column_index + column_index
+              next if cell.empty?
+
+              cell_x = grid_x + column_index
 
               next if cell_x < 0 || cell_x >= Board::GRID_WIDTH
+
+              if cell_y >= Board::GRID_HEIGHT
+                @ghost_y = cell_y - row_index - 1
+                return
+              end
 
               grid_cell = grid_cells[cell_y][cell_x]
               next if grid_cell.empty?
 
-              @ghost_y = cell_y
+              @ghost_y = cell_y - row_index - 1
               return
             end
           end
