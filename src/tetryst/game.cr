@@ -1,5 +1,7 @@
 module Tetryst
   class Game
+    getter? paused
+
     SCREEN_WIDTH  = 1024
     SCREEN_HEIGHT =  768
 
@@ -36,7 +38,11 @@ module Tetryst
     end
 
     def update
-      @board.update
+      @board.update unless paused?
+
+      if @board.game_over?
+        pause
+      end
     end
 
     def draw

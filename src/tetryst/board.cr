@@ -29,6 +29,7 @@ module Tetryst
       @drop_timer = Timer.new(@drop_time)
       @key_down_initial_timer = Timer.new(KEY_DOWN_INITIAL_TIME)
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
+      @tetromino_did_move = false
     end
 
     def width
@@ -136,6 +137,7 @@ module Tetryst
 
       case status
       when :can_move
+        @tetromino_did_move = true
         @tetromino.grid_x += delta_x
         @tetromino.grid_y += delta_y
       when :blocked
@@ -143,6 +145,7 @@ module Tetryst
         place(@tetromino)
         # make a new one at the top
         new_tetromino
+        @tetromino_did_move = false
       when :out_of_bounds
         # don't do anything
         # maybe an alert color flash, vibration, or sound?
@@ -183,6 +186,10 @@ module Tetryst
       end
 
       :can_move
+    end
+
+    def game_over?
+      !@tetromino_did_move && tetromino_status(0, 0) == :blocked
     end
 
     def print

@@ -10,7 +10,8 @@ module Tetryst
     Z
 
     def self.random
-      Shape.new(rand(Shape.values.size))
+      # random, non-empty shape
+      Shape.new(rand(Shape.values.size - 1) + 1)
     end
 
     def matrix
