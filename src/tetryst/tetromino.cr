@@ -43,13 +43,6 @@ module Tetryst
           cells.map { |b| b.reverse[row] }
         end
       end
-
-      # @cells.each_with_index do |rows, row|
-      #   rows.each_with_index do |cell, column|
-      #     cell.grid_x = column
-      #     cell.grid_y = row
-      #   end
-      # end
     end
 
     def draw(x, y, size)
