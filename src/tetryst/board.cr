@@ -12,7 +12,7 @@ module Tetryst
     GRID_HEIGHT = 22
 
     # in pixels
-    BLOCK_SIZE = 32
+    BLOCK_SIZE = ((Game::SCREEN_HEIGHT / GRID_HEIGHT) / 8).to_i * 8
 
     # in seconds
     DROP_TIME               = 0.25
