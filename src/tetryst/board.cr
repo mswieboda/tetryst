@@ -129,7 +129,7 @@ module Tetryst
       if LibRay.key_pressed?(LibRay::KEY_LEFT_SHIFT)
         @tetromino.rotate(:counter_clockwise)
         counter_rotation = :clockwise
-      elsif LibRay.key_pressed?(LibRay::KEY_RIGHT_SHIFT) || LibRay.key_pressed?(LibRay::KEY_UP)
+      elsif LibRay.key_pressed?(LibRay::KEY_RIGHT_SHIFT) || LibRay.key_pressed?(LibRay::KEY_UP) || LibRay.key_pressed?(LibRay::KEY_W)
         @tetromino.rotate(:clockwise)
         counter_rotation = :counter_clockwise
       end
