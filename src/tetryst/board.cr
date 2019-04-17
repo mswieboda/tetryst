@@ -1,5 +1,6 @@
 module Tetryst
   class Board
+    getter? game_over
     getter cells : Array(Array(Cell))
 
     @tetromino : Tetromino
@@ -30,6 +31,7 @@ module Tetryst
       @key_down_initial_timer = Timer.new(KEY_DOWN_INITIAL_TIME)
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
       @tetromino_did_move = false
+      @game_over = false
     end
 
     def width
@@ -56,7 +58,7 @@ module Tetryst
     end
 
     def new_tetromino
-      @tetromino = Tetromino.new(grid_x: 3, grid_y: 0, shape: Shape.random)
+      Tetromino.new(grid_x: 3, grid_y: 0, shape: Shape.random)
     end
 
     def set_cell(cell : Cell)
@@ -141,25 +143,30 @@ module Tetryst
         @tetromino.grid_x += delta_x
         @tetromino.grid_y += delta_y
       when :blocked
-        # place tetromino
         place(@tetromino)
-        # make a new one at the top
-        new_tetromino
+        tetromino = new_tetromino
+
         @tetromino_did_move = false
+
+        if game_over_collision?(tetromino)
+          @game_over = true
+        else
+          @tetromino = tetromino
+        end
       when :out_of_bounds
         # don't do anything
         # maybe an alert color flash, vibration, or sound?
       end
     end
 
-    def tetromino_status(delta_x, delta_y)
-      @tetromino.blocks.each do |rows|
+    def tetromino_status(delta_x, delta_y, tetromino = @tetromino)
+      tetromino.blocks.each do |rows|
         rows.each do |block|
           if block.empty?
             next
           else
-            cell_y = @tetromino.grid_y + block.grid_y + delta_y
-            cell_x = @tetromino.grid_x + block.grid_x + delta_x
+            cell_y = tetromino.grid_y + block.grid_y + delta_y
+            cell_x = tetromino.grid_x + block.grid_x + delta_x
 
             if cell_y < 0
               return :out_of_bounds
@@ -188,8 +195,8 @@ module Tetryst
       :can_move
     end
 
-    def game_over?
-      !@tetromino_did_move && tetromino_status(0, 0) == :blocked
+    def game_over_collision?(tetromino)
+      !@tetromino_did_move && tetromino_status(0, 0, tetromino) == :blocked
     end
 
     def print
