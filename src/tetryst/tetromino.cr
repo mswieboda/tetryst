@@ -5,7 +5,7 @@ module Tetryst
     getter blocks : Array(Array(Cell))
     getter shape : Shape
 
-    def initialize(@grid_x : Int32, @grid_y : Int32, @shape : Shape)
+    def initialize(@shape : Shape, @grid_x = 0, @grid_y = 0)
       @blocks = @shape.matrix.map_with_index do |rows, row|
         rows.map_with_index do |value, column|
           Cell.new(

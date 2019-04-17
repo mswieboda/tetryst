@@ -9,6 +9,10 @@ module Tetryst
     T
     Z
 
+    def self.random
+      Shape.new(rand(Shape.values.size))
+    end
+
     def matrix
       # TODO: switch to Int8 or Bool for less used space
 

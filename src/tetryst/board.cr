@@ -25,7 +25,7 @@ module Tetryst
       @cells = Array.new(GRID_HEIGHT) { |y| Array.new(GRID_WIDTH) { |x| Cell.new(grid_x: x, grid_y: y) } }
       @x = BORDER_WIDTH
       @y = Game::SCREEN_HEIGHT - height - BORDER_WIDTH
-      @tetromino = Tetromino.new(0, 0, Shape::T)
+      @tetromino = new_tetromino
       @drop_timer = Timer.new(@drop_time)
       @key_down_initial_timer = Timer.new(KEY_DOWN_INITIAL_TIME)
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
@@ -55,7 +55,7 @@ module Tetryst
     end
 
     def new_tetromino
-      @tetromino = Tetromino.new(0, 0, Shape::Z)
+      @tetromino = Tetromino.new(grid_x: 3, grid_y: 0, shape: Shape.random)
     end
 
     def set_cell(cell : Cell)
