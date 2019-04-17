@@ -40,8 +40,8 @@ module Tetryst
       when S
         [
           [0, 1, 1],
-          [0, 1, 0],
           [1, 1, 0],
+          [0, 0, 0],
         ]
       when T
         [
@@ -52,8 +52,8 @@ module Tetryst
       when Z
         [
           [1, 1, 0],
-          [0, 1, 0],
           [0, 1, 1],
+          [0, 0, 0],
         ]
       else
         Array(Array(Int32)).new

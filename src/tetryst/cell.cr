@@ -1,14 +1,16 @@
 module Tetryst
   class Cell
+    getter grid_x : Int32
+    getter grid_y : Int32
     getter shape : Shape
     delegate empty?, to: shape
     delegate color, to: shape
 
-    def initialize
-      @shape = Shape::Empty
+    def initialize(@grid_x : Int32, @grid_y : Int32, @shape = Shape::Empty)
     end
 
     def initialize(@shape : Shape)
+      initialize(0, 0, shape)
     end
 
     def empty?
@@ -23,8 +25,8 @@ module Tetryst
       return if empty?
 
       LibRay.draw_rectangle(
-        pos_x: x,
-        pos_y: y,
+        pos_x: x + grid_x * size,
+        pos_y: y + grid_y * size,
         width: size,
         height: size,
         color: color

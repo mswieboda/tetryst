@@ -1,56 +1,40 @@
 module Tetryst
   class Tetromino
-    getter grid_x : Int32
-    getter grid_y : Int32
-    getter matrix : Array(Array(Int32))
+    property grid_x : Int32
+    property grid_y : Int32
+    getter blocks : Array(Array(Cell))
     getter shape : Shape
 
-    DROP_TIME = 0.5
-
-    def initialize(@grid_x : Int32, @grid_y : Int32, @shape : Shape, @drop_time = DROP_TIME)
-      @matrix = @shape.matrix
-      @drop_timer = Timer.new(@drop_time)
-    end
-
-    def rotate(direction = :clockwise)
-      @matrix = matrix.map_with_index do |_line, index|
-        if direction == :clockwise
-          matrix.map { |line| line[index] }.reverse
-        else
-          matrix.map { |line| line[index] }
+    def initialize(@grid_x : Int32, @grid_y : Int32, @shape : Shape)
+      @blocks = @shape.matrix.map_with_index do |rows, row|
+        rows.map_with_index do |value, column|
+          Cell.new(
+            grid_x: row,
+            grid_y: column,
+            shape: value == 0 ? Shape::Empty : shape
+          )
         end
       end
     end
 
-    def update
-      if LibRay.key_pressed?(LibRay::KEY_LEFT) || LibRay.key_pressed?(LibRay::KEY_A)
-        @grid_x -= 1
-      end
-
-      if LibRay.key_pressed?(LibRay::KEY_RIGHT) || LibRay.key_pressed?(LibRay::KEY_D)
-        @grid_x += 1
-      end
-
-      if LibRay.key_pressed?(LibRay::KEY_DOWN) || LibRay.key_pressed?(LibRay::KEY_S)
-        @grid_y += 1
-      end
-
-      if @drop_timer.done?
-        @grid_y += 1
-        @drop_timer.reset
-      else
-        @drop_timer.increase(LibRay.get_frame_time)
+    def rotate(direction = :clockwise)
+      @blocks = blocks.map_with_index do |_rows, row|
+        if direction == :clockwise
+          blocks.map { |b| b[row] }.reverse
+        else
+          blocks.map { |b| b[row] }
+        end
       end
     end
 
     def draw(x, y, size)
-      matrix.each_with_index do |lines, row|
-        lines.each_with_index do |block, column|
-          next if block == 0
+      blocks.each do |rows|
+        rows.each do |cell|
+          next if cell.empty?
 
-          Cell.new(shape).draw(
-            x: x + (grid_x + column) * size,
-            y: y + (grid_y + row) * size,
+          cell.draw(
+            x: x + grid_x * size,
+            y: y + grid_y * size,
             size: size
           )
         end
@@ -59,8 +43,8 @@ module Tetryst
 
     def print
       puts "["
-      matrix.each do |line|
-        puts line.join
+      blocks.each do |rows|
+        puts rows.join
       end
       puts "]"
     end
