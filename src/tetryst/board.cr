@@ -273,7 +273,7 @@ module Tetryst
       )
 
       # info
-      # @lines_cleared
+      # puts "Lines: #{@lines_cleared}"
 
       # border
       BORDER_WIDTH.times do |border|
