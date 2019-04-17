@@ -148,7 +148,7 @@ module Tetryst
 
       # adjust rotation
       if counter_rotation != :none
-        set_tetromino_status(delta_x, delta_y)
+        @tetromino.update_status(@cells, delta_x, delta_y)
 
         more_delta_y = 0
 
@@ -159,7 +159,7 @@ module Tetryst
           delta_y += more_delta_y
         end
 
-        set_tetromino_status(delta_x, delta_y)
+        @tetromino.update_status(@cells, delta_x, delta_y)
 
         # unadjust
         if !@tetromino.status.free?
@@ -172,7 +172,7 @@ module Tetryst
       end
 
       # check tetromino movement
-      set_tetromino_status(delta_x, delta_y)
+      @tetromino.update_status(@cells, delta_x, delta_y)
 
       case @tetromino.status
       when .free?
@@ -205,46 +205,6 @@ module Tetryst
       end
     end
 
-    def set_tetromino_status(delta_x, delta_y, tetromino = @tetromino)
-      # TODO: switch to cells instead of `blocks` and use each_with_index
-      tetromino.cells.each_with_index do |row, row_index|
-        row.each_with_index do |tet_cell, column_index|
-          next if tet_cell.empty?
-
-          cell_y = tetromino.grid_y + row_index + delta_y
-          cell_x = tetromino.grid_x + column_index + delta_x
-
-          if cell_y < 0
-            tetromino.collided
-            return
-          end
-
-          if cell_y >= GRID_HEIGHT
-            tetromino.blocked
-            return
-          end
-
-          if cell_x < 0 || cell_x >= GRID_WIDTH
-            tetromino.collided
-            return
-          end
-
-          cell = @cells[cell_y][cell_x]
-          next if cell.empty?
-
-          if delta_x == 0
-            tetromino.blocked
-            return
-          else
-            tetromino.collided
-            return
-          end
-        end
-      end
-
-      tetromino.free
-    end
-
     def clear_lines
       lines_cleared = [] of Int32
 
@@ -265,7 +225,7 @@ module Tetryst
 
     def game_over_collision?(tetromino)
       unless @tetromino_did_move
-        set_tetromino_status(0, 0, tetromino)
+        tetromino.update_status(@cells)
         tetromino.status.blocked?
       else
         false
