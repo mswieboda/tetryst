@@ -203,6 +203,8 @@ module Tetryst
         # don't do anything
         # maybe an alert color flash, vibration, or sound?
       end
+
+      @tetromino.update_ghost(@cells)
     end
 
     def clear_lines

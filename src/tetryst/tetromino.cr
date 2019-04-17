@@ -8,9 +8,13 @@ module Tetryst
   class Tetromino
     property grid_x : Int32
     property grid_y : Int32
+    getter ghost_y : Int32
     getter cells : Array(Array(Cell))
     getter shape : Shape
     getter status : Status
+
+    GHOST_INSET_SIZE  = 1
+    GHOST_INSET_COLOR = LibRay::WHITE
 
     def initialize(@shape : Shape, @grid_x = 0, @grid_y = 0)
       @cells = @shape.matrix.map do |rows|
@@ -21,6 +25,7 @@ module Tetryst
         end
       end
       @status = Status::Free
+      @ghost_y = @grid_y
     end
 
     def free
@@ -47,10 +52,11 @@ module Tetryst
 
     def update_status(grid_cells, delta_x = 0, delta_y = 0)
       cells.each_with_index do |row, row_index|
+        cell_y = grid_y + row_index + delta_y
+
         row.each_with_index do |cell, column_index|
           next if cell.empty?
 
-          cell_y = grid_y + row_index + delta_y
           cell_x = grid_x + column_index + delta_x
 
           if cell_y < 0
@@ -84,6 +90,35 @@ module Tetryst
       free
     end
 
+    def update_ghost(grid_cells)
+      grid_cells.each_with_index do |grid_row, grid_row_index|
+        grid_row.each_with_index do |grid_column, grid_column_index|
+          # next if grid_column_index < grid_x || grid_column_index > grid_x + cells.size
+
+          cells.each_with_index do |row, row_index|
+            cell_y = grid_row_index + row_index
+
+            if cell_y >= Board::GRID_HEIGHT
+              @ghost_y = cell_y
+              return
+            end
+
+            row.each_with_index do |cell, column_index|
+              cell_x = grid_column_index + column_index
+
+              next if cell_x < 0 || cell_x >= Board::GRID_WIDTH
+
+              grid_cell = grid_cells[cell_y][cell_x]
+              next if grid_cell.empty?
+
+              @ghost_y = cell_y
+              return
+            end
+          end
+        end
+      end
+    end
+
     def draw(x, y, size)
       cells.each_with_index do |row, row_index|
         row.each_with_index do |cell, column_index|
@@ -93,6 +128,21 @@ module Tetryst
             x: x + (grid_x + column_index) * size,
             y: y + (grid_y + row_index) * size,
             size: size
+          )
+        end
+      end
+
+      # ghost
+      cells.each_with_index do |row, row_index|
+        row.each_with_index do |cell, column_index|
+          next if cell.empty?
+
+          LibRay.draw_rectangle_lines(
+            pos_x: x + (grid_x + column_index) * size + GHOST_INSET_SIZE,
+            pos_y: y + @ghost_y * size + (row_index * size) + GHOST_INSET_SIZE,
+            width: size - GHOST_INSET_SIZE * 2,
+            height: size - GHOST_INSET_SIZE * 2,
+            color: GHOST_INSET_COLOR
           )
         end
       end
