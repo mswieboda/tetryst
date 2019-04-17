@@ -176,7 +176,6 @@ module Tetryst
       case @tetromino.status
       when .free?
         if (delta_x != 0 || counter_rotation != :none) && @blocked_timer.active?
-          puts "reset"
           @blocked_timer.reset
         end
 
@@ -184,10 +183,8 @@ module Tetryst
         @tetromino.grid_x += delta_x
         @tetromino.grid_y += delta_y
       when .blocked?
-        print "blocked"
         if @blocked_timer.done?
           @blocked_timer.reset
-          print "done"
           place(@tetromino)
           tetromino = new_tetromino
 
@@ -199,10 +196,8 @@ module Tetryst
             @tetromino = tetromino
           end
         else
-          print "increase timer"
           @blocked_timer.increase(frame_time)
         end
-        puts
       when .collided?
         # don't do anything
         # maybe an alert color flash, vibration, or sound?
