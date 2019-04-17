@@ -14,7 +14,8 @@ module Tetryst
     BLOCK_SIZE = 32
 
     # in seconds
-    DROP_TIME = 0.25
+    DROP_TIME     = 0.25
+    KEY_DOWN_TIME =  0.1
 
     BORDER_WIDTH = 10
 
@@ -25,6 +26,7 @@ module Tetryst
       @tetromino = Tetromino.new(0, 0, Shape::T)
       # @tetromino.rotate(direction: :counter_clockwise)
       @drop_timer = Timer.new(@drop_time)
+      @key_down_timer = Timer.new(KEY_DOWN_TIME)
     end
 
     def width
@@ -64,27 +66,48 @@ module Tetryst
 
     def update_tetromino
       delta_x = delta_y = 0
+      frame_time = LibRay.get_frame_time
 
-      if LibRay.key_pressed?(LibRay::KEY_LEFT) || LibRay.key_pressed?(LibRay::KEY_A)
-        delta_x -= 1
+      # keys
+      if LibRay.key_down?(LibRay::KEY_LEFT) || LibRay.key_down?(LibRay::KEY_D)
+        @key_down_timer.increase(frame_time)
+
+        if @key_down_timer.done?
+          delta_x += 1
+
+          @key_down_timer.reset
+        end
       end
 
-      if LibRay.key_pressed?(LibRay::KEY_RIGHT) || LibRay.key_pressed?(LibRay::KEY_D)
-        delta_x += 1
+      if LibRay.key_down?(LibRay::KEY_RIGHT) || LibRay.key_down?(LibRay::KEY_A)
+        @key_down_timer.increase(frame_time)
+
+        if @key_down_timer.done?
+          delta_x -= 1
+
+          @key_down_timer.reset
+        end
       end
 
-      if LibRay.key_pressed?(LibRay::KEY_DOWN) || LibRay.key_pressed?(LibRay::KEY_S)
-        delta_y += 1
+      if LibRay.key_down?(LibRay::KEY_DOWN) || LibRay.key_down?(LibRay::KEY_S)
+        @key_down_timer.increase(frame_time)
+
+        if @key_down_timer.done?
+          delta_y += 1
+
+          @key_down_timer.reset
+        end
       end
 
+      # drop timer
       if @drop_timer.done?
         delta_y += 1
         @drop_timer.reset
       else
-        @drop_timer.increase(LibRay.get_frame_time)
+        @drop_timer.increase(frame_time)
       end
 
-      # check for collisions
+      # tetromino movement
       status = tetromino_status(delta_x, delta_y)
 
       case status
