@@ -33,6 +33,7 @@ module Tetryst
       @key_down_initial_timer = Timer.new(KEY_DOWN_INITIAL_TIME)
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
       @tetromino_did_move = false
+      @tetromino_hard_drop = false
       @game_over = false
     end
 
@@ -76,6 +77,8 @@ module Tetryst
       delta_x = delta_y = 0
       frame_time = LibRay.get_frame_time
 
+      @tetromino.update_ghost(@cells)
+
       # keys
       # left
       if LibRay.key_down?(LibRay::KEY_LEFT) || LibRay.key_down?(LibRay::KEY_A)
@@ -113,7 +116,7 @@ module Tetryst
         @key_down_initial_timer.reset
       end
 
-      # down
+      # soft drop
       if LibRay.key_down?(LibRay::KEY_DOWN) || LibRay.key_down?(LibRay::KEY_S)
         @key_down_timer.increase(frame_time * KEY_DOWN_SOFT_DROP_RATE)
 
@@ -122,6 +125,12 @@ module Tetryst
 
           @key_down_timer.reset
         end
+      end
+
+      # hard drop
+      if LibRay.key_pressed?(LibRay::KEY_SPACE)
+        @tetromino.hard_drop
+        @tetromino_hard_drop = true
       end
 
       # rotate
@@ -135,7 +144,7 @@ module Tetryst
       end
 
       # drop timer
-      if delta_y == 0 && (@drop_timer.done? || @blocked_timer.active?)
+      if delta_y == 0 && (@drop_timer.done? || @blocked_timer.active?) || @tetromino_hard_drop
         delta_y += 1
         @drop_timer.reset
 
@@ -184,7 +193,9 @@ module Tetryst
         @tetromino.grid_x += delta_x
         @tetromino.grid_y += delta_y
       when .blocked?
-        if @blocked_timer.done?
+        if @blocked_timer.done? || @tetromino_hard_drop
+          puts "blocked"
+          @tetromino_hard_drop = false
           @blocked_timer.reset
           place(@tetromino)
           tetromino = new_tetromino
@@ -197,14 +208,13 @@ module Tetryst
             @tetromino = tetromino
           end
         else
+          puts "block timer increase"
           @blocked_timer.increase(frame_time)
         end
       when .collided?
         # don't do anything
         # maybe an alert color flash, vibration, or sound?
       end
-
-      @tetromino.update_ghost(@cells)
     end
 
     def clear_lines

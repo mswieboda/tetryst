@@ -90,6 +90,10 @@ module Tetryst
       free
     end
 
+    def hard_drop
+      @grid_y = @ghost_y
+    end
+
     def update_ghost(grid_cells)
       grid_cells.each_with_index do |grid_row, grid_row_index|
         grid_row.each_with_index do |grid_column, grid_column_index|
