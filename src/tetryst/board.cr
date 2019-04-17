@@ -135,14 +135,14 @@ module Tetryst
       end
 
       # tetromino movement
-      status = tetromino_status(delta_x, delta_y)
+      set_tetromino_status(delta_x, delta_y)
 
-      case status
-      when :can_move
+      case @tetromino.status
+      when .free?
         @tetromino_did_move = true
         @tetromino.grid_x += delta_x
         @tetromino.grid_y += delta_y
-      when :blocked
+      when .blocked?
         place(@tetromino)
         tetromino = new_tetromino
 
@@ -153,50 +153,58 @@ module Tetryst
         else
           @tetromino = tetromino
         end
-      when :out_of_bounds
+      when .collided?
         # don't do anything
         # maybe an alert color flash, vibration, or sound?
       end
     end
 
-    def tetromino_status(delta_x, delta_y, tetromino = @tetromino)
+    def set_tetromino_status(delta_x, delta_y, tetromino = @tetromino)
       tetromino.blocks.each do |rows|
         rows.each do |block|
-          if block.empty?
-            next
-          else
-            cell_y = tetromino.grid_y + block.grid_y + delta_y
-            cell_x = tetromino.grid_x + block.grid_x + delta_x
+          next if block.empty?
 
-            if cell_y < 0
-              return :out_of_bounds
-            elsif cell_y >= GRID_HEIGHT
-              return :blocked
-            else
-              if cell_x < 0 || cell_x >= GRID_WIDTH
-                return :out_of_bounds
-              else
-                cell = @cells[cell_y][cell_x]
-                if cell.empty?
-                  next
-                else
-                  if delta_x == 0
-                    return :blocked
-                  else
-                    return :out_of_bounds
-                  end
-                end
-              end
-            end
+          cell_y = tetromino.grid_y + block.grid_y + delta_y
+          cell_x = tetromino.grid_x + block.grid_x + delta_x
+
+          if cell_y < 0
+            tetromino.collided
+            return
+          end
+
+          if cell_y >= GRID_HEIGHT
+            tetromino.blocked
+            return
+          end
+
+          if cell_x < 0 || cell_x >= GRID_WIDTH
+            tetromino.collided
+            return
+          end
+
+          cell = @cells[cell_y][cell_x]
+          next if cell.empty?
+
+          if delta_x == 0
+            tetromino.blocked
+            return
+          else
+            tetromino.collided
+            return
           end
         end
       end
 
-      :can_move
+      tetromino.free
     end
 
     def game_over_collision?(tetromino)
-      !@tetromino_did_move && tetromino_status(0, 0, tetromino) == :blocked
+      unless @tetromino_did_move
+        set_tetromino_status(0, 0, tetromino)
+        tetromino.status.blocked?
+      else
+        false
+      end
     end
 
     def print

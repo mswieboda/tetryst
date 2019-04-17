@@ -1,9 +1,16 @@
 module Tetryst
+  enum Status
+    Free
+    Blocked
+    Collided
+  end
+
   class Tetromino
     property grid_x : Int32
     property grid_y : Int32
     getter blocks : Array(Array(Cell))
     getter shape : Shape
+    getter status : Status
 
     def initialize(@shape : Shape, @grid_x = 0, @grid_y = 0)
       @blocks = @shape.matrix.map_with_index do |rows, row|
@@ -15,6 +22,19 @@ module Tetryst
           )
         end
       end
+      @status = Status::Free
+    end
+
+    def free
+      @status = Status::Free
+    end
+
+    def blocked
+      @status = Status::Blocked
+    end
+
+    def collided
+      @status = Status::Collided
     end
 
     def rotate(direction = :clockwise)
