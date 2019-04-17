@@ -15,8 +15,7 @@ module Tetryst
       LibRay.set_target_fps(TARGET_FPS)
 
       @board = Board.new
-      @board.set_cell(Cell.new(grid_x: 3, grid_y: 21, shape: Shape::Z))
-
+      @board.set_cell(grid_x: 3, grid_y: 21, shape: Shape::Z)
       @paused = false
     end
 

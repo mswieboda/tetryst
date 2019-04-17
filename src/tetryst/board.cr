@@ -24,7 +24,7 @@ module Tetryst
     BORDER_WIDTH = 10
 
     def initialize(@drop_time = DROP_TIME)
-      @cells = Array.new(GRID_HEIGHT) { |y| Array.new(GRID_WIDTH) { |x| Cell.new(grid_x: x, grid_y: y) } }
+      @cells = Array.new(GRID_HEIGHT) { |y| Array.new(GRID_WIDTH) { |x| Cell.new } }
       @x = BORDER_WIDTH
       @y = Game::SCREEN_HEIGHT - height - BORDER_WIDTH
       @tetromino = new_tetromino
@@ -45,15 +45,14 @@ module Tetryst
     end
 
     def place(tetromino : Tetromino)
-      tetromino.blocks.each do |rows|
-        rows.each do |block|
-          next if block.empty?
+      tetromino.cells.each_with_index do |row, row_index|
+        row.each_with_index do |cell, column_index|
+          next if cell.empty?
+
           set_cell(
-            Cell.new(
-              grid_x: tetromino.grid_x + block.grid_x,
-              grid_y: tetromino.grid_y + block.grid_y,
-              shape: tetromino.shape
-            )
+            grid_x: tetromino.grid_x + column_index,
+            grid_y: tetromino.grid_y + row_index,
+            shape: cell.shape
           )
         end
       end
@@ -63,12 +62,14 @@ module Tetryst
       Tetromino.new(grid_x: 3, grid_y: 0, shape: Shape.random)
     end
 
-    def set_cell(cell : Cell)
-      @cells[cell.grid_y][cell.grid_x] = cell
+    def set_cell(grid_x, grid_y, shape : Shape)
+      @cells[grid_y][grid_x].shape = shape
     end
 
     def update
       update_tetromino
+
+      clear_lines
     end
 
     def update_tetromino
@@ -205,12 +206,13 @@ module Tetryst
     end
 
     def set_tetromino_status(delta_x, delta_y, tetromino = @tetromino)
-      tetromino.blocks.each do |rows|
-        rows.each do |block|
-          next if block.empty?
+      # TODO: switch to cells instead of `blocks` and use each_with_index
+      tetromino.cells.each_with_index do |row, row_index|
+        row.each_with_index do |tet_cell, column_index|
+          next if tet_cell.empty?
 
-          cell_y = tetromino.grid_y + block.grid_y + delta_y
-          cell_x = tetromino.grid_x + block.grid_x + delta_x
+          cell_y = tetromino.grid_y + row_index + delta_y
+          cell_x = tetromino.grid_x + column_index + delta_x
 
           if cell_y < 0
             tetromino.collided
@@ -243,6 +245,50 @@ module Tetryst
       tetromino.free
     end
 
+    def clear_lines
+      lines_cleared = [] of Int32
+
+      @cells.each_with_index do |row, row_index|
+        if row.all? { |cell| !cell.empty? }
+          lines_cleared << row_index
+        end
+      end
+
+      @cells.reverse.each_with_index do |row, row_index|
+        row_index = @cells.size - 1 - row_index
+
+        lines_cleared.each do |line_cleared|
+          if row_index == line_cleared
+            # clear row
+            # row.each do |cell|
+            #   cell.shape = Shape::Empty
+            # end
+            # last_row = row
+
+            # delete row
+            @cells.delete_at(row_index)
+
+            # add empty row to top
+            @cells.unshift(row.map_with_index { |cell, index| Cell.new(shape: Shape::Empty) })
+          elsif row_index < line_cleared
+            # # move row down
+            # last_row = row.dup
+
+            # # clear row
+            # row.each do |cell|
+            #   cell.shape = Shape::Empty
+            # end
+          end
+        end
+
+        if row.all? { |cell| !cell.empty? }
+          lines_cleared << row_index
+        end
+      end
+
+      puts "#{lines_cleared.size} cleared" if lines_cleared.any?
+    end
+
     def game_over_collision?(tetromino)
       unless @tetromino_did_move
         set_tetromino_status(0, 0, tetromino)
@@ -261,11 +307,11 @@ module Tetryst
     end
 
     def draw
-      @cells.each do |rows|
-        rows.each do |cell|
+      @cells.each_with_index do |row, row_index|
+        row.each_with_index do |cell, column_index|
           cell.draw(
-            x: @x,
-            y: @y,
+            x: @x + column_index * BLOCK_SIZE,
+            y: @y + row_index * BLOCK_SIZE,
             size: BLOCK_SIZE
           )
         end

@@ -8,16 +8,14 @@ module Tetryst
   class Tetromino
     property grid_x : Int32
     property grid_y : Int32
-    getter blocks : Array(Array(Cell))
+    getter cells : Array(Array(Cell))
     getter shape : Shape
     getter status : Status
 
     def initialize(@shape : Shape, @grid_x = 0, @grid_y = 0)
-      @blocks = @shape.matrix.map_with_index do |rows, row|
-        rows.map_with_index do |value, column|
+      @cells = @shape.matrix.map do |rows|
+        rows.map do |value|
           Cell.new(
-            grid_x: column,
-            grid_y: row,
             shape: value == 0 ? Shape::Empty : shape
           )
         end
@@ -38,30 +36,30 @@ module Tetryst
     end
 
     def rotate(direction)
-      @blocks = blocks.map_with_index do |_rows, row|
+      @cells = cells.map_with_index do |_rows, row|
         if direction == :clockwise
-          blocks.reverse.map { |b| b[row] }
+          cells.reverse.map { |b| b[row] }
         else
-          blocks.map { |b| b.reverse[row] }
+          cells.map { |b| b.reverse[row] }
         end
       end
 
-      @blocks.each_with_index do |rows, row|
-        rows.each_with_index do |cell, column|
-          cell.grid_x = column
-          cell.grid_y = row
-        end
-      end
+      # @cells.each_with_index do |rows, row|
+      #   rows.each_with_index do |cell, column|
+      #     cell.grid_x = column
+      #     cell.grid_y = row
+      #   end
+      # end
     end
 
     def draw(x, y, size)
-      blocks.each do |rows|
-        rows.each do |cell|
+      cells.each_with_index do |row, row_index|
+        row.each_with_index do |cell, column_index|
           next if cell.empty?
 
           cell.draw(
-            x: x + grid_x * size,
-            y: y + grid_y * size,
+            x: x + (grid_x + column_index) * size,
+            y: y + (grid_y + row_index) * size,
             size: size
           )
         end
@@ -70,8 +68,8 @@ module Tetryst
 
     def print
       puts "["
-      blocks.each do |rows|
-        puts rows.join
+      cells.each do |row|
+        puts row.join
       end
       puts "]"
     end
