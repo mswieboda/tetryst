@@ -4,15 +4,22 @@ module Tetryst
 
     BOARD_BORDER_WIDTH = 10
 
-    def initialize
+    LINES_PER_LEVEL = 10
+
+    def initialize(initial_level = 0)
       @board = Board.new(
         x: (Game::SCREEN_WIDTH / 2.0 - Board.width / 2.0).to_i,
-        y: (Game::SCREEN_HEIGHT / 2.0 - Board.height / 2.0).to_i
+        y: (Game::SCREEN_HEIGHT / 2.0 - Board.height / 2.0).to_i,
+        level: initial_level
       )
 
-      @lines_label = Label.new(text: "Lines: 0")
+      @level_label = Label.new(text: "Level: #{initial_level}")
+      @level_label.x = @board.x - BOARD_BORDER_WIDTH - Board.width / 2
+      @level_label.y = @board.y
+
+      @lines_label = Label.new(text: "Lines: #{LINES_PER_LEVEL}")
       @lines_label.x = @board.x - BOARD_BORDER_WIDTH - Board.width / 2
-      @lines_label.y = @board.y
+      @lines_label.y = @level_label.y + @level_label.height
 
       @paused = false
     end
@@ -37,7 +44,8 @@ module Tetryst
     end
 
     def update_info
-      @lines_label.text = "Lines: #{@board.lines_cleared}"
+      @level_label.text = "Level: #{@board.level}"
+      @lines_label.text = "Lines: #{LINES_PER_LEVEL - @board.lines_cleared}"
     end
 
     def draw
@@ -54,6 +62,8 @@ module Tetryst
         )
       end
 
+      # info
+      @level_label.draw
       @lines_label.draw
     end
   end

@@ -4,6 +4,7 @@ module Tetryst
     getter cells : Array(Array(Cell))
     getter x : Int32
     getter y : Int32
+    getter level : Int32
     getter lines_cleared : Int32
 
     @tetromino : Tetromino
@@ -22,7 +23,7 @@ module Tetryst
     KEY_DOWN_TIME           = 0.06
     KEY_DOWN_SOFT_DROP_RATE =    2
 
-    def initialize(@x = 0, @y = 0, @drop_time = DROP_TIME)
+    def initialize(@x = 0, @y = 0, @drop_time = DROP_TIME, @level = 0)
       @cells = Array.new(GRID_HEIGHT) { Array.new(GRID_WIDTH) { Cell.new } }
       @tetromino = new_tetromino
       @drop_timer = Timer.new(@drop_time)
@@ -31,7 +32,7 @@ module Tetryst
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
       @tetromino_did_move = false
       @tetromino_hard_drop = false
-      @lines_cleared = 0
+      @lines_cleared = 8
       @game_over = false
     end
 
@@ -233,6 +234,13 @@ module Tetryst
       end
 
       @lines_cleared += lines_cleared.size
+
+      new_level if @lines_cleared >= Screen::LINES_PER_LEVEL
+    end
+
+    def new_level
+      @lines_cleared = 0
+      @level += 1
     end
 
     def game_over_collision?(tetromino)
