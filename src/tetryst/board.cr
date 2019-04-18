@@ -17,23 +17,27 @@ module Tetryst
     BLOCK_SIZE = ((Game::SCREEN_HEIGHT / GRID_HEIGHT) / 8).to_i * 8
 
     # in seconds
-    DROP_TIME               = 0.25
+    DROP_TIME               =  0.3
     BLOCKED_TIME            =  0.2
     KEY_DOWN_INITIAL_TIME   =  0.2
     KEY_DOWN_TIME           = 0.06
     KEY_DOWN_SOFT_DROP_RATE =    2
 
-    def initialize(@x = 0, @y = 0, @drop_time = DROP_TIME, @level = 0)
+    def initialize(@x = 0, @y = 0, @level = 0)
       @cells = Array.new(GRID_HEIGHT) { Array.new(GRID_WIDTH) { Cell.new } }
       @tetromino = new_tetromino
-      @drop_timer = Timer.new(@drop_time)
+      @drop_timer = Timer.new(drop_time_from_level)
       @blocked_timer = Timer.new(BLOCKED_TIME)
       @key_down_initial_timer = Timer.new(KEY_DOWN_INITIAL_TIME)
       @key_down_timer = Timer.new(KEY_DOWN_TIME)
       @tetromino_did_move = false
       @tetromino_hard_drop = false
-      @lines_cleared = 8
+      @lines_cleared = 0
       @game_over = false
+    end
+
+    def drop_time_from_level
+      DROP_TIME - @level * DROP_TIME / 20.0
     end
 
     def self.width
@@ -68,6 +72,8 @@ module Tetryst
 
     def update
       update_tetromino
+
+      new_level if LibRay.key_pressed?(LibRay::KEY_R)
 
       clear_lines
     end
@@ -241,6 +247,7 @@ module Tetryst
     def new_level
       @lines_cleared = 0
       @level += 1
+      @drop_timer = Timer.new(drop_time_from_level)
     end
 
     def game_over_collision?(tetromino)
