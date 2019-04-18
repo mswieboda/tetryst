@@ -1,7 +1,5 @@
 module Tetryst
   class Game
-    getter? paused
-
     SCREEN_WIDTH  = 1024
     SCREEN_HEIGHT =  768
 
@@ -14,16 +12,7 @@ module Tetryst
       LibRay.init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Tetryst")
       LibRay.set_target_fps(TARGET_FPS)
 
-      @board = Board.new(x: SCREEN_WIDTH / 2 - Board.width / 2, y: SCREEN_HEIGHT / 2 - Board.height / 2)
-      @paused = false
-    end
-
-    def pause
-      @paused = true
-    end
-
-    def unpause
-      @paused = false
+      @screen = Screen.new
     end
 
     def run
@@ -36,15 +25,11 @@ module Tetryst
     end
 
     def update
-      @board.update unless paused?
-
-      if @board.game_over?
-        pause
-      end
+      @screen.update
     end
 
     def draw
-      @board.draw
+      @screen.draw
 
       LibRay.draw_fps(0, 0) if DRAW_FPS
     end
