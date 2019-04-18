@@ -26,11 +26,18 @@ module Tetryst
     end
 
     def update
-      @board.update unless paused?
+      unless paused?
+        @board.update
+        update_info
+      end
 
       if @board.game_over?
         pause
       end
+    end
+
+    def update_info
+      @lines_label.text = "Lines: #{@board.lines_cleared}"
     end
 
     def draw
