@@ -2,10 +2,11 @@ module Tetryst
   class Board
     getter? game_over
     getter cells : Array(Array(Cell))
+    getter x : Int32
+    getter y : Int32
+    getter lines_cleared : Int32
 
     @tetromino : Tetromino
-    @x : Int32
-    @y : Int32
 
     # in blocks
     GRID_WIDTH  = 10
@@ -21,12 +22,8 @@ module Tetryst
     KEY_DOWN_TIME           = 0.06
     KEY_DOWN_SOFT_DROP_RATE =    2
 
-    BORDER_WIDTH = 10
-
     def initialize(@x = 0, @y = 0, @drop_time = DROP_TIME)
       @cells = Array.new(GRID_HEIGHT) { Array.new(GRID_WIDTH) { Cell.new } }
-      @x += BORDER_WIDTH
-      @y -= BORDER_WIDTH
       @tetromino = new_tetromino
       @drop_timer = Timer.new(@drop_time)
       @blocked_timer = Timer.new(BLOCKED_TIME)
@@ -271,20 +268,6 @@ module Tetryst
         y: @y,
         size: BLOCK_SIZE
       )
-
-      # info
-      # puts "Lines: #{@lines_cleared}"
-
-      # border
-      BORDER_WIDTH.times do |border|
-        LibRay.draw_rectangle_lines(
-          pos_x: @x - border,
-          pos_y: @y - border,
-          width: self.class.width + border * 2,
-          height: self.class.height + border * 2,
-          color: LibRay::WHITE
-        )
-      end
     end
   end
 end
