@@ -17,7 +17,7 @@ module Tetryst
     BLOCK_SIZE = ((Game::SCREEN_HEIGHT / GRID_HEIGHT) / 8).to_i * 8
 
     # in seconds
-    DROP_TIME               =  0.3
+    DROP_TIME               =  0.5
     BLOCKED_TIME            =  0.2
     KEY_DOWN_INITIAL_TIME   =  0.2
     KEY_DOWN_TIME           = 0.06
@@ -36,16 +36,16 @@ module Tetryst
       @game_over = false
     end
 
-    def drop_time_from_level
-      DROP_TIME - @level * DROP_TIME / 20.0
-    end
-
     def self.width
       GRID_WIDTH * BLOCK_SIZE
     end
 
     def self.height
       GRID_HEIGHT * BLOCK_SIZE
+    end
+
+    def drop_time_from_level
+      (DROP_TIME - Math.log(1.0_f64 + @level / 30.0)).clamp(0, DROP_TIME)
     end
 
     def place(tetromino : Tetromino)
@@ -151,6 +151,7 @@ module Tetryst
       # drop timer
       if delta_y == 0 && (@drop_timer.done? || @blocked_timer.active?) || @tetromino_hard_drop
         delta_y += 1
+
         @drop_timer.reset
 
         if counter_rotation != :none

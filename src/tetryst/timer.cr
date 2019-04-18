@@ -1,6 +1,7 @@
 module Tetryst
   class Timer
     getter time : Float32
+    getter length : Float64 | Float32 | Int32
     getter? active
 
     def initialize(@length : Float64 | Float32 | Int32)
