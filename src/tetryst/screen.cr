@@ -71,6 +71,8 @@ module Tetryst
       @level_label.draw
       @lines_label.draw
       @score_label.draw
+
+      # TODO: draw @board.next_tetrominos
     end
   end
 end

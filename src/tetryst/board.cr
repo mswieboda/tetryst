@@ -7,6 +7,7 @@ module Tetryst
     getter level : Int32
     getter lines_cleared : Int32
     getter score : Int32
+    getter next_tetrominos : Array(Shape)
 
     @tetromino : Tetromino
 
@@ -34,6 +35,7 @@ module Tetryst
 
     def initialize(@x = 0, @y = 0, @level = 0)
       @cells = Array.new(GRID_HEIGHT) { Array.new(GRID_WIDTH) { Cell.new } }
+      @next_tetrominos = 4.times.map { Shape.random }.to_a
       @tetromino = new_tetromino
       @drop_timer = Timer.new(drop_time_from_level)
       @blocked_timer = Timer.new(BLOCKED_TIME)
@@ -73,7 +75,10 @@ module Tetryst
     end
 
     def new_tetromino
-      Tetromino.new(grid_x: 3, grid_y: 0, shape: Shape.random)
+      new_shape = @next_tetrominos.shift
+      @next_tetrominos << Shape.random
+
+      Tetromino.new(grid_x: 3, grid_y: 0, shape: new_shape)
     end
 
     def set_cell(grid_x, grid_y, shape : Shape)
