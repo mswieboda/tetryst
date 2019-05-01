@@ -21,6 +21,10 @@ module Tetryst
       @lines_label.x = @board.x - BOARD_BORDER_WIDTH - Board.width / 2
       @lines_label.y = @level_label.y + @level_label.height
 
+      @score_label = Label.new(text: "Score: 0")
+      @score_label.x = @board.x - BOARD_BORDER_WIDTH - Board.width / 2
+      @score_label.y = @lines_label.y + @level_label.height
+
       @paused = false
     end
 
@@ -46,6 +50,7 @@ module Tetryst
     def update_info
       @level_label.text = "Level: #{@board.level}"
       @lines_label.text = "Lines: #{LINES_PER_LEVEL - @board.lines_cleared}"
+      @score_label.text = "Score: #{@board.score}"
     end
 
     def draw
@@ -65,6 +70,7 @@ module Tetryst
       # info
       @level_label.draw
       @lines_label.draw
+      @score_label.draw
     end
   end
 end

@@ -6,6 +6,7 @@ module Tetryst
     getter y : Int32
     getter level : Int32
     getter lines_cleared : Int32
+    getter score : Int32
 
     @tetromino : Tetromino
 
@@ -34,6 +35,7 @@ module Tetryst
       @tetromino_hard_drop = false
       @lines_cleared = 0
       @game_over = false
+      @score = 0
     end
 
     def self.width
@@ -241,6 +243,19 @@ module Tetryst
       end
 
       @lines_cleared += lines_cleared.size
+
+      # add to score
+      # 40 * (n + 1)  100 * (n + 1) 300 * (n + 1) 1200 * (n + 1)
+      case lines_cleared.size
+      when 1
+        @score += 40 * (level + 1)
+      when 2
+        @score += 100 * (level + 1)
+      when 3
+        @score += 300 * (level + 1)
+      when 4
+        @score += 1200 * (level + 1)
+      end
 
       new_level if @lines_cleared >= Screen::LINES_PER_LEVEL
     end
