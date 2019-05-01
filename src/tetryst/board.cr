@@ -24,6 +24,14 @@ module Tetryst
     KEY_DOWN_TIME           = 0.06
     KEY_DOWN_SOFT_DROP_RATE =    2
 
+    # score
+    SCORE_SOFT_DROP   =   1
+    SCORE_HARD_DROP   =   2
+    SCORE_ONE_LINE    = 100
+    SCORE_TWO_LINES   = 300
+    SCORE_THREE_LINES = 500
+    SCORE_FOUR_LINES  = 800
+
     def initialize(@x = 0, @y = 0, @level = 0)
       @cells = Array.new(GRID_HEIGHT) { Array.new(GRID_WIDTH) { Cell.new } }
       @tetromino = new_tetromino
@@ -129,13 +137,19 @@ module Tetryst
 
         if @key_down_timer.done?
           delta_y += 1
+          @score += SCORE_SOFT_DROP
 
           @key_down_timer.reset
         end
       end
 
+      # puts @tetromino.grid_y
+      # puts @tetromino.ghost_y - @tetromino.grid_y
+
       # hard drop
       if LibRay.key_pressed?(LibRay::KEY_SPACE)
+        @score += (@tetromino.ghost_y - @tetromino.grid_y) * SCORE_HARD_DROP
+
         @tetromino.hard_drop
         @tetromino_hard_drop = true
       end
@@ -248,13 +262,13 @@ module Tetryst
       # 40 * (n + 1)  100 * (n + 1) 300 * (n + 1) 1200 * (n + 1)
       case lines_cleared.size
       when 1
-        @score += 40 * (level + 1)
+        @score += SCORE_ONE_LINE * (level + 1)
       when 2
-        @score += 100 * (level + 1)
+        @score += SCORE_TWO_LINES * (level + 1)
       when 3
-        @score += 300 * (level + 1)
+        @score += SCORE_THREE_LINES * (level + 1)
       when 4
-        @score += 1200 * (level + 1)
+        @score += SCORE_FOUR_LINES * (level + 1)
       end
 
       new_level if @lines_cleared >= Screen::LINES_PER_LEVEL
